@@ -5,8 +5,12 @@ const PORT = process.env.PORT || 3000;
 const morgan = require("morgan");
 const methodOverride = require("method-override");
 const authRoutes = require("./controllers/auth");
+const listingController = require("./controllers/listing")
+const userController = require('./controllers/user')
 const session = require("express-session");
 const MongoStore = require('connect-mongo')
+const isSignedIn = require('./middleware/is-signed-in')
+const passDataToView = require('./middleware/pass-data-to-view')
 
 // Middlewares
 require("./db/connection");
@@ -27,6 +31,7 @@ app.use(
 
   })
 );
+app.use(passDataToView)
 
 // Routes
 app.get("/", (req, res) => {
@@ -35,20 +40,15 @@ app.get("/", (req, res) => {
   });
 });
 app.use("/auth", authRoutes);
+app.use('/listings', listingController)
+app.use('/users', userController)
 
 // Routes below this you must be signed in
-app.use((req, res, next) => {
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect("/");
-  }
-});
-
-app.get("/vip-lounge", (req, res) => {
-  res.send(`Welcome to the party ${req.session.user.username}`);
-});
+app.use(isSignedIn);
 
 app.listen(PORT, () => {
   console.log("This ship sailing on port", PORT);
 });
+
+
+
