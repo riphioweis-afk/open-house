@@ -14,6 +14,7 @@ const passDataToView = require('./middleware/pass-data-to-view')
 
 // Middlewares
 require("./db/connection");
+app.use(express.static("public"));
 app.use(morgan("tiny"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
